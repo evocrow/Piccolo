@@ -92,16 +92,25 @@ namespace Piccolo
         float final_acceleration = m_motor_res.m_move_acceleration;
         float min_speed_ratio    = 0.f;
         float max_speed_ratio    = 0.f;
+        bool is_recovery = true;
         if (has_move_command)
         {
-            is_acceleration = true;
-            max_speed_ratio = m_motor_res.m_max_move_speed_ratio;
+            if (has_sprint_command) is_recovery = false;
+            bool is_able_to_sprint = has_sprint_command && !m_is_exhausting;
             if (m_move_speed_ratio >= m_motor_res.m_max_move_speed_ratio)
             {
-                final_acceleration = m_motor_res.m_sprint_acceleration;
-                is_acceleration    = has_sprint_command;
+                if (is_able_to_sprint) is_acceleration = true;
+                if (is_able_to_sprint) final_acceleration = m_motor_res.m_sprint_acceleration;
                 min_speed_ratio    = m_motor_res.m_max_move_speed_ratio;
                 max_speed_ratio    = m_motor_res.m_max_sprint_speed_ratio;
+            }
+            else
+            {
+                is_acceleration = true;
+                if (is_able_to_sprint) final_acceleration = m_motor_res.m_sprint_acceleration;
+                min_speed_ratio    = 0.f;
+                max_speed_ratio    = m_motor_res.m_max_move_speed_ratio;
+                if (is_able_to_sprint) max_speed_ratio    = m_motor_res.m_max_sprint_speed_ratio;
             }
         }
         else
@@ -113,6 +122,15 @@ namespace Piccolo
 
         m_move_speed_ratio += (is_acceleration ? 1.0f : -1.0f) * final_acceleration * delta_time;
         m_move_speed_ratio = std::clamp(m_move_speed_ratio, min_speed_ratio, max_speed_ratio);
+
+        m_stamina_cur = m_motor_res.m_stamina;
+        float stamina_up_ratio = m_motor_res.m_stamina_recovery_ratio;
+        float stamina_down_ratio = m_motor_res.m_sprint_stamina_consume_ratio;
+        m_stamina_cur += (is_recovery ? stamina_up_ratio : -stamina_down_ratio) * delta_time;
+        m_stamina_cur = std::clamp(m_stamina_cur, 0.f, m_motor_res.m_max_stamina);
+        m_is_exhausting = true;
+        if (m_stamina_cur > 0.f) m_is_exhausting = false;
+        m_motor_res.m_stamina = m_stamina_cur;
     }
 
     void MotorComponent::calculatedDesiredVerticalMoveSpeed(unsigned int command, float delta_time)

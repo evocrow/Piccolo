@@ -52,6 +52,7 @@ namespace Piccolo
         float m_move_speed_ratio {0.f};
         float m_vertical_move_speed {0.f};
         float m_jump_horizontal_speed_ratio {0.f};
+        float m_stamina_cur {0.f};
 
         Vector3 m_desired_displacement;
         Vector3 m_desired_horizontal_move_direction;
@@ -65,5 +66,6 @@ namespace Piccolo
         Controller*    m_controller {nullptr};
 
         bool m_is_moving {false};
+        bool m_is_exhausting {false};
     };
 } // namespace Piccolo

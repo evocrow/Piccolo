@@ -4,5 +4,9 @@
   "max_sprint_speed_ratio": 2.0,
   "move_acceleration": 2,
   "sprint_acceleration": 2,
-  "jump_height": 1
+  "jump_height": 1,
+  "stamina": 100.0,
+  "max_stamina": 100.0,
+  "sprint_stamina_consume_ratio": 25.0,
+  "stamina_recovery_ratio": 20.0
 }
